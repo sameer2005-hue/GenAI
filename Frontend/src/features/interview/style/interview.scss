@@ -1,0 +1,384 @@
+.interview-page {
+    --interview-bg: linear-gradient(180deg, #151312 0%, #1d1917 100%);
+    --interview-panel: rgba(34, 29, 27, 0.9);
+    --interview-panel-border: rgba(255, 255, 255, 0.07);
+    --interview-card: rgba(255, 255, 255, 0.04);
+    --interview-card-strong: rgba(255, 255, 255, 0.06);
+    --interview-text: #f3ece4;
+    --interview-muted: rgba(243, 236, 228, 0.68);
+    --interview-highlight: #c08a57;
+    --interview-accent: #b96a58;
+
+    min-height: 100vh;
+    padding: 1.5rem;
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.05), transparent 24%),
+        radial-gradient(circle at bottom right, rgba(192, 138, 87, 0.08), transparent 24%),
+        var(--interview-bg);
+    color: var(--interview-text);
+}
+
+.interview-shell {
+    width: min(1320px, 100%);
+    min-height: calc(100vh - 3rem);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr) 260px;
+    gap: 0;
+    border: 1px solid var(--interview-panel-border);
+    border-radius: 1.8rem;
+    overflow: hidden;
+    background: rgba(19, 17, 16, 0.9);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.interview-sidebar,
+.interview-content,
+.interview-insights {
+    min-width: 0;
+    background: var(--interview-panel);
+}
+
+.interview-sidebar,
+.interview-insights {
+    padding: 2rem 1.25rem;
+}
+
+.interview-content {
+    border-left: 1px solid var(--interview-panel-border);
+    border-right: 1px solid var(--interview-panel-border);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 3rem);
+}
+
+.panel-kicker {
+    color: var(--interview-highlight);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.18rem;
+    text-transform: uppercase;
+}
+
+.sidebar-header {
+    margin-bottom: 2rem;
+
+    h1 {
+        margin-top: 0.55rem;
+        font-size: 1.7rem;
+        line-height: 1.1;
+        color: var(--interview-text);
+    }
+}
+
+.sidebar-nav {
+    display: grid;
+    gap: 0.45rem;
+    margin-bottom: 2rem;
+}
+
+.nav-item {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--interview-muted);
+    border-radius: 0.95rem;
+    padding: 0.9rem 0.95rem;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    transition: background-color 0.2s ease, border-color 0.2s ease,
+        color 0.2s ease;
+
+    &.active {
+        color: var(--interview-text);
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(192, 138, 87, 0.36);
+    }
+}
+
+.score-card,
+.insight-panel {
+    padding: 1rem;
+    border-radius: 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--interview-card);
+}
+
+.score-card {
+    span {
+        display: block;
+        color: var(--interview-muted);
+        font-size: 0.85rem;
+        margin-bottom: 0.35rem;
+    }
+
+    strong {
+        display: block;
+        color: var(--interview-text);
+        font-size: 2.3rem;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    p {
+        color: var(--interview-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+}
+
+.content-header {
+    margin-bottom: 1.35rem;
+
+    h2 {
+        margin-top: 0.35rem;
+        margin-bottom: 0;
+        font-size: 1.35rem;
+        line-height: 1.2;
+        color: var(--interview-text);
+    }
+
+    h3 {
+        margin-top: 0.5rem;
+        margin-bottom: 0.45rem;
+        font-size: 2rem;
+        line-height: 1.1;
+    }
+
+    p:last-child {
+        color: var(--interview-muted);
+        line-height: 1.55;
+        max-width: 62ch;
+    }
+}
+
+.report-title-banner {
+    padding: 0.95rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 1.1rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--interview-card);
+}
+
+.report-title-label {
+    display: inline-block;
+    color: var(--interview-highlight);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+}
+
+.content-scroll {
+    display: grid;
+    gap: 1rem;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.question-card,
+.roadmap-card {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--interview-card);
+}
+
+.question-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+}
+
+.question-index,
+.roadmap-day {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.1rem;
+    height: 3.1rem;
+    border-radius: 999px;
+    background: rgba(192, 138, 87, 0.14);
+    color: var(--interview-highlight);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.question-body,
+.roadmap-body {
+    min-width: 0;
+
+    h3 {
+        font-size: 1.02rem;
+        line-height: 1.5;
+        margin-bottom: 0.85rem;
+        color: var(--interview-text);
+    }
+
+    p {
+        color: var(--interview-muted);
+        line-height: 1.6;
+    }
+}
+
+.question-block + .question-block {
+    margin-top: 0.8rem;
+}
+
+.question-block {
+    padding: 0.85rem 0.95rem;
+    border-radius: 1rem;
+    background: var(--interview-card-strong);
+
+    span {
+        display: block;
+        margin-bottom: 0.35rem;
+        color: var(--interview-highlight);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.05rem;
+        text-transform: uppercase;
+    }
+}
+
+.roadmap-card {
+    grid-template-columns: 88px minmax(0, 1fr);
+    align-items: start;
+}
+
+.roadmap-day {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 1.2rem;
+}
+
+.interview-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.skill-gap-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 1rem;
+}
+
+.skill-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--interview-text);
+    font-size: 0.9rem;
+    line-height: 1.3;
+
+    &.severity-medium {
+        border-color: rgba(192, 138, 87, 0.28);
+    }
+
+    &.severity-low {
+        border-color: rgba(118, 172, 141, 0.26);
+    }
+}
+
+.insight-note {
+    margin-top: auto;
+
+    h3 {
+        margin-top: 0.65rem;
+        margin-bottom: 0.45rem;
+        font-size: 1rem;
+        color: var(--interview-text);
+    }
+
+    p {
+        color: var(--interview-muted);
+        line-height: 1.55;
+    }
+}
+
+@media (max-width: 1080px) {
+    .interview-shell {
+        grid-template-columns: 220px minmax(0, 1fr);
+    }
+
+    .interview-insights {
+        grid-column: 1 / -1;
+        border-top: 1px solid var(--interview-panel-border);
+        border-left: 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .interview-content {
+        border-right: 0;
+        min-height: auto;
+    }
+
+    .insight-note {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 820px) {
+    .interview-page {
+        padding: 1rem;
+    }
+
+    .interview-shell {
+        min-height: auto;
+        grid-template-columns: 1fr;
+    }
+
+    .interview-sidebar,
+    .interview-content,
+    .interview-insights {
+        padding: 1.25rem;
+    }
+
+    .interview-content {
+        border-left: 0;
+        border-right: 0;
+        border-top: 1px solid var(--interview-panel-border);
+        border-bottom: 1px solid var(--interview-panel-border);
+    }
+
+    .interview-insights {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar-nav {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .interview-page {
+        padding: 0.85rem;
+    }
+
+    .interview-shell {
+        border-radius: 1.3rem;
+    }
+
+    .question-card,
+    .roadmap-card {
+        grid-template-columns: 1fr;
+    }
+
+    .question-index,
+    .roadmap-day {
+        width: fit-content;
+        min-width: 3rem;
+        padding-inline: 0.9rem;
+    }
+
+    .content-header h3 {
+        font-size: 1.65rem;
+    }
+}

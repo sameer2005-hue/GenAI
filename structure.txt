@@ -1,0 +1,145 @@
+4 layer architecture
+
+UI
+    component
+    pages
+
+Hook -> for managing state and api layers
+    hooks
+
+State -> data store
+    auth.context.js
+    at.context.js
+
+API's -> for communication with backend
+    services
+        auth.api.js
+
+
+
+{
+  "matchScore": 92,
+  "technicalQuestions": [
+    {
+      "question": "Can you walk me through the architecture and key features of your Full Stack Stock Trading Platform? Specifically, how did you handle real-time data updates and user authentication?",
+      "intention": "To assess full-stack understanding, MERN stack proficiency, real-time data handling, and authentication implementation in a complex project.",
+      "answer": "Expect a description of the frontend (React.js, state management), backend (Node.js/Express.js, API design), database (MongoDB/Mongoose schema for users, stocks, transactions), and how authentication (e.g., JWT, sessions) and real-time updates (e.g., WebSockets, polling) were handled."
+    },
+    {
+      "question": "You mentioned deploying a sales prediction project using ML algorithms with Flask. Can you explain the process of integrating this Flask-based ML model into a web application? What challenges did you face?",
+      "intention": "To evaluate practical experience with ML model integration, understanding of API endpoints for ML, and problem-solving skills related to cross-technology communication.",
+      "answer": "Expect an explanation of how the Flask app exposed an API endpoint, how the frontend (or another backend service) consumed this API, data serialization/deserialization, and potential challenges like latency, error handling, or data format mismatches."
+    },
+    {
+      "question": "Describe your approach to designing a database schema for your Property Rental Platform. Which database did you use, and how did you model relationships between entities like properties, users, and bookings?",
+      "intention": "To assess database design skills, understanding of relational vs. non-relational databases, and ability to model complex data structures.",
+      "answer": "Expect details on MongoDB schema (collections for properties, users, bookings), how references were handled (e.g., user ID in property, property ID in booking), and considerations for querying and data integrity. If MySQL, then table structures and foreign keys."
+    },
+    {
+      "question": "How do you ensure your web applications are responsive across different devices, especially considering your use of Tailwind CSS?",
+      "intention": "To check his practical application of responsive design principles and specific knowledge of Tailwind CSS utility classes for different breakpoints.",
+      "answer": "Expect an explanation of using Tailwind's responsive prefixes (sm:, md:, lg:, xl:), mobile-first approach, flexible layouts (flexbox, grid), and potentially media queries if custom styles were needed."
+    },
+    {
+      "question": "In your projects, how did you handle error logging and debugging on both the frontend and backend?",
+      "intention": "To understand his practical development practices, debugging skills, and awareness of tools/strategies for identifying and resolving issues in a full-stack environment.",
+      "answer": "Expect mention of browser developer tools, console.log, debugger statements, backend logging libraries (e.g., Winston for Node.js), try-catch blocks, and potentially middleware for error handling in Express."
+    }
+  ],
+  "behavioralQuestions": [
+    {
+      "question": "Tell me about a time you encountered a significant technical challenge or bug in one of your projects. How did you approach solving it, and what did you learn from the experience?",
+      "intention": "To assess problem-solving skills, resilience, debugging methodology, and ability to learn from mistakes.",
+      "answer": "Expect a STAR (Situation, Task, Action, Result) response detailing the problem, his steps to diagnose and fix it, and the key takeaway."
+    },
+    {
+      "question": "You mentioned collaborating with teams. Describe a situation where you had to work with others on a project, perhaps during your internship or a hackathon. What was your role, and how did you contribute to the team's success?",
+      "intention": "To evaluate teamwork, communication, and collaboration skills, as well as his ability to contribute effectively in a group setting.",
+      "answer": "Expect a description of a team project, his specific responsibilities, how he communicated with teammates, resolved conflicts (if any), and helped achieve the project goals."
+    },
+    {
+      "question": "The tech landscape evolves rapidly. How do you stay updated with new technologies and best practices, especially in the MERN stack and AI/ML domains?",
+      "intention": "To gauge his proactive learning approach, curiosity, and commitment to continuous professional development.",
+      "answer": "Expect mention of online courses, tech blogs, documentation, GitHub repositories, community forums, personal projects, or attending webinars/conferences."
+    },
+    {
+      "question": "You're pursuing a B.Tech degree while also gaining practical experience. How do you manage your time and prioritize tasks when balancing academic commitments with project work or internships?",
+      "intention": "To assess time management, prioritization skills, and ability to handle multiple responsibilities effectively.",
+      "answer": "Expect strategies like creating schedules, setting deadlines, breaking down tasks, using productivity tools, and understanding when to seek help or delegate."
+    },
+    {
+      "question": "Where do you see yourself professionally in the next 3-5 years, and how does this Full Stack Developer role at TechNova Solutions align with your long-term career aspirations?",
+      "intention": "To understand his career goals, motivation for applying to this specific role, and whether his ambitions align with the company's opportunities.",
+      "answer": "Expect a thoughtful response about growth in full-stack development, specializing in AI integration, leadership aspirations, or contributing to impactful products, and how TechNova provides a stepping stone."
+    }
+  ],
+  "skillGaps": [
+    {
+      "skill": "Performance Optimization & Scalability",
+      "severity": "medium"
+    },
+    {
+      "skill": "System Design Principles",
+      "severity": "medium"
+    },
+    {
+      "skill": "Unit and Integration Testing",
+      "severity": "medium"
+    },
+    {
+      "skill": "Advanced Git Workflow & Collaboration Tools",
+      "severity": "low"
+    },
+    {
+      "skill": "Cloud Deployment & CI/CD",
+      "severity": "medium"
+    }
+  ],
+  "preparationRecommendations": [
+    {
+      "day": 1,
+      "focus": "Core MERN Stack Deep Dive",
+      "task": "Review advanced React.js concepts (hooks, context API, performance optimization), Node.js event loop, Express.js middleware, and MongoDB indexing strategies. Be ready to explain choices in projects."
+    },
+    {
+      "day": 2,
+      "focus": "AI/ML Integration & Flask",
+      "task": "Prepare to articulate the architecture of your sales prediction project, specifically how the Flask API interacts with the frontend/backend, data flow, and error handling. Understand common challenges in ML deployment."
+    },
+    {
+      "day": 3,
+      "focus": "System Design Basics",
+      "task": "Study fundamental system design concepts like load balancing, caching, microservices vs. monolith, database scaling (sharding, replication), and API design principles. Think about how these apply to your projects."
+    },
+    {
+      "day": 4,
+      "focus": "Performance & Scalability",
+      "task": "Research common performance bottlenecks in MERN applications (e.g., N+1 queries, large bundle sizes, inefficient rendering) and techniques to optimize them (e.g., memoization, lazy loading, database indexing, caching)."
+    },
+    {
+      "day": 5,
+      "focus": "Behavioral & Communication",
+      "task": "Practice answering common behavioral questions using the STAR method. Prepare specific examples from your projects and internship that highlight problem-solving, teamwork, and learning agility."
+    },
+    {
+      "day": 6,
+      "focus": "Git & Testing",
+      "task": "Familiarize yourself with common Git branching strategies (e.g., Git Flow, GitHub Flow) and the importance of unit/integration testing in a full-stack application."
+    },
+    {
+      "day": 7,
+      "focus": "Review & Mock Interview",
+      "task": "Conduct a mock interview, focusing on explaining your projects clearly, articulating your thought process for technical problems, and demonstrating enthusiasm for the role and continuous learning."
+    }
+  ],
+  "user": {
+    "$oid": "69c91abd1e3799b56a7fd32c"
+  },
+  "createdAt": {
+    "$date": "2026-03-29T12:28:17.928Z"
+  },
+  "updatedAt": {
+    "$date": "2026-03-29T12:28:17.928Z"
+  },
+  "__v": 0
+}
