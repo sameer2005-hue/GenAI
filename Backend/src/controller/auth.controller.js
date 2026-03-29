@@ -15,7 +15,7 @@ async function registerUser(req, res) {
   });
 
   if (existingUser) {
-    return res.status(400).json({ messgae: "Accouont already exist" });
+{ message: "Account already exist" }
   }
 
   const user = await userModel.create({
@@ -33,7 +33,7 @@ async function registerUser(req, res) {
   res.cookie("token", token);
 
   res.status(201).json({
-    messgae: "user register successfully",
+    message: "user register successfully",
     status: "success",
     user: {
       id: user._id,
@@ -70,7 +70,7 @@ async function loginUser(req, res) {
   res.cookie("token", token);
 
   res.status(200).json({
-    message: "user loggedin succesfully",
+    message: "user logged in successfully",
     user: {
       id: user._id,
       username: user.username,
@@ -98,7 +98,7 @@ async function getMeController(req, res) {
   const user = await userModel.findById(req.user.id);
 
   res.status(200).json({
-    message: "user fetch succesfully",
+    message: "user fetch successfully",
     user:{
       id: user._id,
       username: user.username,
@@ -107,9 +107,43 @@ async function getMeController(req, res) {
   })
 }
 
+async function changePasswordController(req, res) {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res
+      .status(400)
+      .json({ message: "Current password and new password are required" });
+  }
+
+  if (newPassword.length < 6) {
+    return res
+      .status(400)
+      .json({ message: "New password must be at least 6 characters long" });
+  }
+
+  const user = await userModel.findById(req.user.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+
+  if (!isCurrentPasswordValid) {
+    return res.status(401).json({ message: "Current password is incorrect" });
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  return res.status(200).json({ message: "Password updated successfully" });
+}
+
 module.exports = {
   registerUser,
   loginUser,
   loggedoutUser,
   getMeController,
+  changePasswordController,
 };
