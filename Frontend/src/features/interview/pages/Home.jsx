@@ -5,10 +5,16 @@ import { useInterview } from "../hooks/useInterview";
 import "../style/home.scss";
 
 function Home() {
-  const { loading, generateReport } = useInterview();
+  const { loading, generateReport, reports, fetchReports } = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
   const resumeInputRef = useRef();
+
+  useEffect(() => {
+    fetchReports().catch((error) => {
+      console.error("Failed to load interview reports:", error);
+    });
+  }, [fetchReports]);
 
   const { user, handleLogout, handleChangePassword } = useAuth();
   const navigate = useNavigate();
@@ -23,9 +29,14 @@ function Home() {
     type: "",
     text: "",
   });
+  const [editorPopup, setEditorPopup] = useState({
+    field: "",
+    open: false,
+  });
   const menuRef = useRef(null);
   const profileRef = useRef(null);
   const passwordPopupRef = useRef(null);
+  const editorPopupRef = useRef(null);
 
   const userInitials = useMemo(() => {
     const name = user?.username?.trim() || "User";
@@ -47,6 +58,13 @@ function Home() {
         !passwordPopupRef.current.contains(event.target)
       ) {
         setPasswordPopupOpen(false);
+      }
+
+      if (
+        editorPopupRef.current &&
+        !editorPopupRef.current.contains(event.target)
+      ) {
+        setEditorPopup((prev) => ({ ...prev, open: false }));
       }
     };
 
@@ -142,6 +160,37 @@ function Home() {
     }
   };
 
+  const openEditorPopup = (field) => {
+    setEditorPopup({ field, open: true });
+  };
+
+  const closeEditorPopup = () => {
+    setEditorPopup({ field: "", open: false });
+  };
+
+  const isJobEditorOpen = editorPopup.open && editorPopup.field === "jobDescription";
+  const isSelfEditorOpen =
+    editorPopup.open && editorPopup.field === "selfDescription";
+
+  const editorTitle =
+    editorPopup.field === "jobDescription"
+      ? "Edit Job Description"
+      : "Edit Self Description";
+
+  const editorValue =
+    editorPopup.field === "jobDescription" ? jobDescription : selfDescription;
+
+  const handleEditorChange = (event) => {
+    const { value } = event.target;
+
+    if (editorPopup.field === "jobDescription") {
+      setJobDescription(value);
+      return;
+    }
+
+    setSelfDescription(value);
+  };
+
   if (loading) {
     return (
       <div className="loading-state">
@@ -154,88 +203,93 @@ function Home() {
   return (
     <main className="home">
       <section className="home-shell">
-        <div className="hero-panel">
-          <p className="eyebrow">AI Interview Preparation</p>
-          <h1>Turn your resume into a smarter interview practice space.</h1>
-          <p className="hero-copy">
-            Paste the role details, upload your resume, and add a short
-            introduction.
-          </p>
+        <div className="home-topbar">
+          <div className="home-topbar-copy">
+            <p className="eyebrow">AI Interview Preparation</p>
+            <h1>Build your next interview report</h1>
+          </div>
 
-          <div className="hero-points">
-            <div className="point-card">
-              <span className="point-number">01</span>
-              <p>Match candidate experience with the target job description.</p>
-            </div>
-            <div className="point-card">
-              <span className="point-number">02</span>
-              <p>
-                Create personalized interview questions from resume content.
-              </p>
-            </div>
-            <div className="point-card">
-              <span className="point-number">03</span>
-              <p>Keep everything in one clean and focused workflow.</p>
-            </div>
+          <div className="user-menu topbar-user-menu" ref={menuRef}>
+            <button
+              type="button"
+              className="user-menu-trigger"
+              onClick={() => setMenuOpen((prev) => !prev)}
+            >
+              <span className="user-avatar">{userInitials}</span>
+              <span className="user-meta">
+                <strong>{user?.username || "User"}</strong>
+                {/* <small>@{user?.username || "user"}</small> */}
+              </span>
+            </button>
+
+            {menuOpen ? (
+              <div className="user-menu-dropdown">
+                <div className="user-menu-actions">
+                  <button
+                    type="button"
+                    className="user-action-btn"
+                    onClick={openProfile}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    type="button"
+                    className="user-action-btn logout"
+                    onClick={onLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
 
-        <div className="form-panel">
-          <div className="form-header">
-            <div className="form-header-top">
-              <div>
-                <p className="form-kicker">Candidate Setup</p>
-                <h2>Generate Interview Report</h2>
-                <p>
-                  Fill in the details below to create resume-based interview
-                  questions and preparation insights.
-                </p>
-              </div>
-
-              <div className="user-menu" ref={menuRef}>
+        <aside className="reports-panel">
+          <div className="reports-header">
+            <h2>Generated Reports</h2>
+            <p className="report-subtitle">
+              Click any report to continue where you left off.
+            </p>
+          </div>
+          <div className="reports-list">
+            {reports?.length > 0 ? (
+              reports.map((item) => (
                 <button
+                  key={item._id}
                   type="button"
-                  className="user-menu-trigger"
-                  onClick={() => setMenuOpen((prev) => !prev)}
+                  className="report-item"
+                  onClick={() => navigate(`/interview/${item._id}`)}
                 >
-                  <span className="user-avatar">{userInitials}</span>
-                  <span className="user-meta">
-                    <strong>{user?.username || "User"}</strong>
-                    {/* <small>@{user?.username || "user"}</small> */}
+                  <strong>{item.title || `Report ${item._id?.slice(-6)}`}</strong>
+                  <span>
+                    Score: {item.matchScore ?? "N/A"}% • {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                 </button>
+              ))
+            ) : (
+              <p className="empty-reports">No saved reports yet. Generate one to see it here.</p>
+            )}
+          </div>
+        </aside>
 
-                {menuOpen ? (
-                  <div className="user-menu-dropdown">
-                    <div className="user-menu-actions">
-                      <button
-                        type="button"
-                        className="user-action-btn"
-                        onClick={openProfile}
-                      >
-                        Profile
-                      </button>
-                      <button
-                        type="button"
-                        className="user-action-btn logout"
-                        onClick={onLogout}
-                      >
-                        Logout
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
+        <div className="form-panel">
+          <div className="form-header">
+            <p className="form-kicker">Candidate Setup</p>
+            <h2>Generate Interview Report</h2>
+            <p>
+              Fill in the details below to create resume-based interview
+              questions and preparation insights.
+            </p>
           </div>
 
           <div className="interview-input-group">
             <div className="input-group input-group-lg">
               <label htmlFor="jobDescription">Job Description</label>
               <textarea
-                onChange={(e) => {
-                  setJobDescription(e.target.value);
-                }}
+                readOnly
+                value={jobDescription}
+                onClick={() => openEditorPopup("jobDescription")}
                 name="jobDescription"
                 id="jobDescription"
                 placeholder="Paste the role responsibilities, required skills, and expectations here..."
@@ -262,9 +316,9 @@ function Home() {
               <div className="input-group input-group-lg">
                 <label htmlFor="selfDescription">Self Description</label>
                 <textarea
-                  onChange={(e) => {
-                    setSelfDescription(e.target.value);
-                  }}
+                  readOnly
+                  value={selfDescription}
+                  onClick={() => openEditorPopup("selfDescription")}
                   name="selfDescription"
                   id="selfDescription"
                   placeholder="Write a short introduction about your background, strengths, and goals..."
@@ -399,6 +453,50 @@ function Home() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {editorPopup.open ? (
+        <div className="profile-modal-backdrop">
+          <div className="profile-modal text-editor-popup" ref={editorPopupRef}>
+            <div className="profile-modal-header">
+              <div className="profile-section-head">
+                <strong>{editorTitle}</strong>
+                <p>Write or update your content in the expanded editor.</p>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={closeEditorPopup}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="input-group text-editor-group">
+              <textarea
+                autoFocus
+                value={editorValue}
+                onChange={handleEditorChange}
+                className={isJobEditorOpen ? "popup-textarea job-popup" : "popup-textarea self-popup"}
+                placeholder={
+                  isJobEditorOpen
+                    ? "Paste the role responsibilities, required skills, and expectations here..."
+                    : "Write a short introduction about your background, strengths, and goals..."
+                }
+              ></textarea>
+            </div>
+
+            <div className="profile-modal-actions">
+              <button
+                type="button"
+                className="button primary-button save-password-btn"
+                onClick={closeEditorPopup}
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       ) : null}

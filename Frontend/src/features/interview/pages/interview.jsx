@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useInterview } from "../hooks/useInterview";
 import "../style/interview.scss";
 
@@ -11,6 +11,7 @@ const tabs = [
 
 function Interview() {
   const { interviewId } = useParams();
+  const navigate = useNavigate();
   const { loading, report, fetchReportById } = useInterview();
   const [activeTab, setActiveTab] = useState("technical");
 
@@ -81,6 +82,14 @@ function Interview() {
     <main className="interview-page">
       <section className="interview-shell">
         <aside className="interview-sidebar">
+          <button
+            type="button"
+            className="back-button"
+            onClick={() => navigate("/")}
+          >
+            Back
+          </button>
+
           <div className="sidebar-header">
             <p className="panel-kicker">Interview Report</p>
             <h1>{report.title || "Preparation dashboard"}</h1>
