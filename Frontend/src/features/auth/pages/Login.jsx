@@ -32,7 +32,7 @@ const Login = () => {
     try {
       await handleLogin({ email: email.trim(), password });
       showPopup("success", "Login successful. Redirecting...");
-      navigate("/");
+      navigate("/app");
     } catch (err) {
       showPopup(
         "error",

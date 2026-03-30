@@ -42,7 +42,7 @@ const Register = () => {
         password,
       });
       showPopup("success", "Account created successfully. Redirecting...");
-      navigate("/");
+      navigate("/app");
     } catch (err) {
       showPopup(
         "error",

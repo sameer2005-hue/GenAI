@@ -132,7 +132,7 @@ function Interview() {
           <button
             type="button"
             className="back-button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/app")}
           >
             Back
           </button>
