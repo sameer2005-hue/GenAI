@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { useInterview } from "../hooks/useInterview";
 import "../style/interview.scss";
 
@@ -7,13 +7,18 @@ const tabs = [
   { id: "technical", label: "Technical questions" },
   { id: "behavioral", label: "Behavioral questions" },
   { id: "roadmap", label: "Road Map" },
+  { id: "resumes", label: "Resumes" },
 ];
 
 function Interview() {
   const { interviewId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const { loading, report, fetchReportById } = useInterview();
-  const [activeTab, setActiveTab] = useState("technical");
+  const { loading, report, fetchReportById, removeSavedResume } = useInterview();
+  const [activeTab, setActiveTab] = useState(
+    location.state?.activeTab || "technical",
+  );
+  const [deletingResumeId, setDeletingResumeId] = useState("");
 
   useEffect(() => {
     if (interviewId) {
@@ -22,6 +27,13 @@ function Interview() {
       });
     }
   }, [fetchReportById, interviewId]);
+
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   const activeContent = useMemo(() => {
     if (!report) {
@@ -50,6 +62,15 @@ function Interview() {
       };
     }
 
+    if (activeTab === "resumes") {
+      return {
+        title: "Saved resumes",
+        subtitle:
+          "Open a saved version anytime, review it, and download the final PDF when needed.",
+        items: report.savedResumes || [],
+      };
+    }
+
     return {
       title: "7-day preparation road map",
       subtitle:
@@ -57,6 +78,32 @@ function Interview() {
       items: report.preparationRecommendations || [],
     };
   }, [activeTab, report]);
+
+  const handleResumePreview = () => {
+    navigate(`/interview/${interviewId}/resume-preview`);
+  };
+
+  const handleDeleteResume = async (resumeId) => {
+    const shouldDelete = window.confirm(
+      "Are you sure you want to delete this saved resume?",
+    );
+
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      setDeletingResumeId(resumeId);
+      await removeSavedResume({ interviewId, resumeId });
+    } catch (error) {
+      alert(
+        error?.response?.data?.message ||
+          "Resume delete failed. Please try again.",
+      );
+    } finally {
+      setDeletingResumeId("");
+    }
+  };
 
   if (loading && !report) {
     return (
@@ -113,6 +160,14 @@ function Interview() {
             <strong>{report.matchScore}%</strong>
             <p>Strong alignment with the target role and resume context.</p>
           </div>
+
+          <button
+            type="button"
+            className="download-resume-btn sidebar-download-btn"
+            onClick={handleResumePreview}
+          >
+            Generate Resume
+          </button>
         </aside>
 
         <section className="interview-content">
@@ -127,7 +182,51 @@ function Interview() {
           </header>
 
           <div className="content-scroll">
-            {activeTab !== "roadmap"
+            {activeTab === "resumes" ? (
+              activeContent.items.length > 0 ? (
+                activeContent.items.map((item) => (
+                  <article className="saved-resume-card" key={item._id}>
+                    <div className="saved-resume-copy">
+                      <span className="saved-resume-label">Saved Resume</span>
+                      <h3>{item.title}</h3>
+                      <p>
+                        Saved on{" "}
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="saved-resume-actions">
+                      <button
+                        type="button"
+                        className="open-resume-btn"
+                        onClick={() =>
+                          navigate(
+                            `/interview/${interviewId}/resume-preview/${item._id}`,
+                          )
+                        }
+                      >
+                        Open Resume
+                      </button>
+                      <button
+                        type="button"
+                        className="delete-resume-btn"
+                        onClick={() => handleDeleteResume(item._id)}
+                        disabled={deletingResumeId === item._id}
+                      >
+                        {deletingResumeId === item._id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="empty-resume-state">
+                  <h3>No saved resumes yet</h3>
+                  <p>
+                    Generate a resume preview first, then save it with a custom
+                    title to see it here.
+                  </p>
+                </div>
+              )
+            ) : activeTab !== "roadmap"
               ? activeContent.items.map((item, index) => (
                   <article className="question-card" key={item.question}>
                     <div className="question-index">Q{index + 1}</div>

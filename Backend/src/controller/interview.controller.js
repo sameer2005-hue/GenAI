@@ -1,7 +1,9 @@
 const pdfParse = require("pdf-parse");
 const {
   generateInterviewReport,
+  generateResumeHtml,
   generateResumePdf,
+  generatePdfFromHtml,
 } = require("../services/ai.service");
 const interviewReportModel = require("../model/interviewReport.model");
 
@@ -160,7 +162,7 @@ async function generateInterviewReportController(req, res) {
   } catch (error) {
     console.error("Controller Error:", error);
 
-    return res.status(500).json({
+    return res.status(error.status || 500).json({
       message: error.message || "Something went wrong",
     });
   }
@@ -232,10 +234,167 @@ async function generateResumePdfController(req, res) {
     res.send(pdfBuffer);
   } catch (error) {
     console.error("Error generating PDF:", error);
-    res.status(500).json({
-      message: "Failed to generate PDF",
+    res.status(error.status || 500).json({
+      message: error.message || "Failed to generate PDF",
     });
   }
+}
+
+async function generateResumePreviewController(req, res) {
+  const { interviewId } = req.params;
+
+  const interviewReport = await interviewReportModel.findOne({
+    _id: interviewId,
+    user: req.user?.id,
+  });
+
+  if (!interviewReport) {
+    return res.status(404).json({
+      message: "Interview report not found",
+    });
+  }
+
+  const { resume, selfDescription, jobDescription, title } = interviewReport;
+
+  try {
+    const html = await generateResumeHtml({
+      resume,
+      selfDescription,
+      jobDescription,
+    });
+
+    return res.status(200).json({
+      message: "Resume preview generated successfully",
+      resumeHtml: html,
+      suggestedTitle: `${title || "Interview"} Resume`,
+    });
+  } catch (error) {
+    console.error("Error generating resume preview:", error);
+    return res.status(error.status || 500).json({
+      message: error.message || "Failed to generate resume preview",
+    });
+  }
+}
+
+async function renderResumePdfController(req, res) {
+  const { html, title } = req.body;
+
+  if (!html) {
+    return res.status(400).json({
+      message: "Resume HTML is required",
+    });
+  }
+
+  try {
+    const pdfBuffer = await generatePdfFromHtml(html);
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename="${(title || "resume")
+        .replace(/[^a-z0-9-_]+/gi, "_")
+        .toLowerCase()}.pdf"`,
+    });
+    return res.send(pdfBuffer);
+  } catch (error) {
+    console.error("Error rendering resume PDF:", error);
+    return res.status(error.status || 500).json({
+      message: error.message || "Failed to render resume PDF",
+    });
+  }
+}
+
+async function saveGeneratedResumeController(req, res) {
+  const { interviewId } = req.params;
+  const { title, html } = req.body;
+
+  if (!title?.trim() || !html?.trim()) {
+    return res.status(400).json({
+      message: "Resume title and HTML are required",
+    });
+  }
+
+  const interviewReport = await interviewReportModel.findOne({
+    _id: interviewId,
+    user: req.user?.id,
+  });
+
+  if (!interviewReport) {
+    return res.status(404).json({
+      message: "Interview report not found",
+    });
+  }
+
+  interviewReport.savedResumes.push({
+    title: title.trim(),
+    html,
+  });
+
+  await interviewReport.save();
+
+  return res.status(201).json({
+    message: "Resume saved successfully",
+    savedResume:
+      interviewReport.savedResumes[interviewReport.savedResumes.length - 1],
+    savedResumes: interviewReport.savedResumes,
+  });
+}
+
+async function getSavedResumeController(req, res) {
+  const { interviewId, resumeId } = req.params;
+
+  const interviewReport = await interviewReportModel.findOne({
+    _id: interviewId,
+    user: req.user?.id,
+  });
+
+  if (!interviewReport) {
+    return res.status(404).json({
+      message: "Interview report not found",
+    });
+  }
+
+  const savedResume = interviewReport.savedResumes.id(resumeId);
+
+  if (!savedResume) {
+    return res.status(404).json({
+      message: "Saved resume not found",
+    });
+  }
+
+  return res.status(200).json({
+    message: "Saved resume fetched successfully",
+    savedResume,
+  });
+}
+
+async function deleteSavedResumeController(req, res) {
+  const { interviewId, resumeId } = req.params;
+
+  const interviewReport = await interviewReportModel.findOne({
+    _id: interviewId,
+    user: req.user?.id,
+  });
+
+  if (!interviewReport) {
+    return res.status(404).json({
+      message: "Interview report not found",
+    });
+  }
+
+  const savedResume = interviewReport.savedResumes.id(resumeId);
+
+  if (!savedResume) {
+    return res.status(404).json({
+      message: "Saved resume not found",
+    });
+  }
+
+  savedResume.deleteOne();
+  await interviewReport.save();
+
+  return res.status(200).json({
+    message: "Resume deleted successfully",
+    savedResumes: interviewReport.savedResumes,
+  });
 }
 
 module.exports = {
@@ -243,4 +402,9 @@ module.exports = {
   getInterviewReportController,
   getAllInterviewReportController,
   generateResumePdfController,
+  generateResumePreviewController,
+  renderResumePdfController,
+  saveGeneratedResumeController,
+  getSavedResumeController,
+  deleteSavedResumeController,
 };

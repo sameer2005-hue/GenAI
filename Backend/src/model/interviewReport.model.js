@@ -102,6 +102,21 @@ const preparationRecommendationSchema = new Schema(
   { _id: false },
 );
 
+const savedResumeSchema = new Schema(
+  {
+    title: {
+      type: String,
+      required: [true, "Resume title is required"],
+      trim: true,
+    },
+    html: {
+      type: String,
+      required: [true, "Resume HTML is required"],
+    },
+  },
+  { timestamps: true },
+);
+
 const interviewReportSchema = new Schema(
   {
     jobDescription: {
@@ -127,6 +142,7 @@ const interviewReportSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    savedResumes: [savedResumeSchema],
     title: {
       type: String,
        required: [true, "Job title is required"],

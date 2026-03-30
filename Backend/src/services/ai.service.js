@@ -7,11 +7,9 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_API_KEY,
 });
 
-// ✅ ZOD SCHEMA (MATCH WITH MONGOOSE)
 const interviewReportSchema = z.object({
   title: z.string(),
   matchScore: z.number(),
-
   technicalQuestions: z.array(
     z.object({
       question: z.string(),
@@ -19,7 +17,6 @@ const interviewReportSchema = z.object({
       answer: z.string(),
     }),
   ),
-
   behavioralQuestions: z.array(
     z.object({
       question: z.string(),
@@ -27,14 +24,12 @@ const interviewReportSchema = z.object({
       answer: z.string(),
     }),
   ),
-
   skillGaps: z.array(
     z.object({
       skill: z.string(),
       severity: z.enum(["low", "medium", "high"]),
     }),
   ),
-
   preparationRecommendations: z.array(
     z.object({
       day: z.number(),
@@ -44,13 +39,15 @@ const interviewReportSchema = z.object({
   ),
 });
 
-// ✅ Retry (for rate limit)
+const resumeHtmlSchema = z.object({
+  html: z.string(),
+});
+
 async function generateWithRetry(fn, retries = 2) {
   try {
     return await fn();
   } catch (err) {
-    if (err.status === 429 && retries > 0) {
-      console.log("Retrying...");
+    if (err?.status === 429 && retries > 0) {
       await new Promise((res) => setTimeout(res, 30000));
       return generateWithRetry(fn, retries - 1);
     }
@@ -58,7 +55,78 @@ async function generateWithRetry(fn, retries = 2) {
   }
 }
 
-// ✅ MAIN FUNCTION
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatBlock(text = "") {
+  return text
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join("");
+}
+
+function buildFallbackResumeHtml({ resume, selfDescription, jobDescription }) {
+  return `
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Generated Resume</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 40px;
+          font-family: Arial, sans-serif;
+          color: #1f2937;
+          background: #ffffff;
+          line-height: 1.45;
+        }
+        .resume {
+          max-width: 820px;
+          margin: 0 auto;
+        }
+        h1 {
+          margin: 0 0 10px;
+          font-size: 28px;
+          color: #111827;
+        }
+        h2 {
+          margin: 22px 0 10px;
+          padding-bottom: 6px;
+          font-size: 15px;
+          border-bottom: 1px solid #d1d5db;
+          color: #111827;
+        }
+        p {
+          margin: 0 0 8px;
+          white-space: pre-wrap;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="resume">
+        <h1>Generated Resume</h1>
+        <h2>Professional Summary</h2>
+        ${formatBlock(selfDescription)}
+        <h2>Target Role</h2>
+        ${formatBlock(jobDescription)}
+        <h2>Experience and Background</h2>
+        ${formatBlock(resume)}
+      </div>
+    </body>
+  </html>
+  `;
+}
+
 async function generateInterviewReport({
   resume,
   selfDescription,
@@ -135,21 +203,14 @@ Job Description: ${jobDescription}
     }),
   );
 
-  // ✅ FIX: correct text extraction
   let text =
     response?.candidates?.[0]?.content?.parts?.[0]?.text || response.text;
 
-  // 🔥 REMOVE ```json ... ``` wrapper
   text = text.trim();
 
   if (text.startsWith("```")) {
-    text = text
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim();
+    text = text.replace(/```json/gi, "").replace(/```/g, "").trim();
   }
-
-  console.log("RAW AI RESPONSE:", text);
 
   let parsed;
 
@@ -159,72 +220,87 @@ Job Description: ${jobDescription}
     throw new Error("AI returned invalid JSON");
   }
 
-  // ✅ VALIDATE WITH ZOD (VERY IMPORTANT)
   const validated = interviewReportSchema.safeParse(parsed);
 
   if (!validated.success) {
-    console.error(validated.error);
     throw new Error("AI response format incorrect");
   }
 
   return validated.data;
 }
 
+async function generateResumeHtml({ resume, selfDescription, jobDescription }) {
+  const prompt = `Generate a resume for a candidate with the following details:
+
+Resume: ${resume.slice(0, 1000)}
+Self Description: ${selfDescription}
+Job Description: ${jobDescription}
+
+Return ONLY a JSON object with one field: "html".
+The HTML should be ATS-friendly, clear, professional, and tailored to the job description.
+Use realistic sections like summary, skills, experience, and education.
+Make the content feel natural and human-written.
+Do not include markdown or extra explanation.`;
+
+  try {
+    const response = await generateWithRetry(() =>
+      ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: zodToJsonSchema(resumeHtmlSchema),
+          temperature: 0.2,
+        },
+      }),
+    );
+
+    const jsonContent = JSON.parse(response.text);
+    return jsonContent.html;
+  } catch (error) {
+    if (error?.status === 429 || error?.status === 403) {
+      return buildFallbackResumeHtml({ resume, selfDescription, jobDescription });
+    }
+
+    throw error;
+  }
+}
+
 async function generatePdfFromHtml(htmlContent) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setContent(htmlContent, { waitUntil: "networkidle0" });
-  const pdfBuffer = await page.pdf({ format: "A4", margins: { top: "20mm", bottom: "20mm", left: "15mm", right: "15mm" } });
+  const pdfBuffer = await page.pdf({
+    format: "A4",
+    margins: {
+      top: "20mm",
+      bottom: "20mm",
+      left: "15mm",
+      right: "15mm",
+    },
+  });
   await browser.close();
   return pdfBuffer;
 }
 
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
-  const resumePdfSchema = z.object({
-    html: z.string().describe("the HTML content for the resume PDF"), // base64 PDF string
+  const html = await generateResumeHtml({
+    resume,
+    selfDescription,
+    jobDescription,
   });
 
-  const prompt = `Generate a resume for a candidate with the following details:
-  
-  Resume: ${resume.slice(0, 1000)}
-  Self Description: ${selfDescription}
-  Job Description: ${jobDescription}
-
-  the response should be a JSON object with a single field "html" containing the HTML content for the resume PDF.
-  the resume shoubld be ATS-friendly, well-formatted, and tailored to the job description. Use the self description to add a personal touch to the resume. Return ONLY the JSON object with the "html" field, no explanations or extra text.
-  the content should be not sound like generated by AI, but a real resume created by a human. Use common resume sections like Summary, Skills, Experience, Education etc. and populate them based on the input data.
-  and resume should be concise, ideally fitting into 1 pages when converted to PDF.
-  you can highlight relevant skills and experience that match the job description, and use the self description to add a unique personal summary at the top. Remember, the output MUST be a JSON object with an "html" field containing the HTML string for the resume. NO markdown, NO explanations, ONLY JSON.
-  but the content like simple and straightforward language, avoid buzzwords and cliches, and make it look like a genuine resume created by a real person. DO NOT include any AI-related phrases or disclaimers in the content. The HTML should be clean and simple, suitable for conversion to PDF without formatting issues.
-  
-  `;
-
-  const response = await generateWithRetry(() =>
-    ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }],
-        },
-      ],
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: zodToJsonSchema(resumePdfSchema),
-        temperature: 0.2,
-      },
-    }),
-  );
-
-  const jsonContent = JSON.parse(response.text);
-
-  const pdfBuffer = await generatePdfFromHtml(jsonContent.html);
-
-  return pdfBuffer;
+  return generatePdfFromHtml(html);
 }
 
 module.exports = {
   generateInterviewReport,
+  generateResumeHtml,
   generateResumePdf,
-  generatePdfFromHtml
+  generatePdfFromHtml,
 };
