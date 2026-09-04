@@ -73,7 +73,15 @@ function formatBlock(text = "") {
     .join("");
 }
 
-function buildFallbackResumeHtml({ resume, selfDescription, jobDescription }) {
+function buildFallbackResumeHtml({ resume, selfDescription, jobDescription, resumeDetails }) {
+  const personal = resumeDetails?.personal || {};
+  const section = (title, content) => content?.trim()
+    ? `<h2>${escapeHtml(title)}</h2>${formatBlock(content)}`
+    : "";
+  const contact = [personal.phone, personal.email, personal.location, personal.linkedin, personal.github, personal.portfolio]
+    .filter(Boolean)
+    .map(escapeHtml)
+    .join(" &nbsp; | &nbsp; ");
   return `
   <!doctype html>
   <html lang="en">
@@ -114,13 +122,20 @@ function buildFallbackResumeHtml({ resume, selfDescription, jobDescription }) {
     </head>
     <body>
       <div class="resume">
-        <h1>Generated Resume</h1>
-        <h2>Professional Summary</h2>
-        ${formatBlock(selfDescription)}
-        <h2>Target Role</h2>
-        ${formatBlock(jobDescription)}
-        <h2>Experience and Background</h2>
-        ${formatBlock(resume)}
+        <h1>${escapeHtml(personal.fullName || "Professional Resume")}</h1>
+        <p>${contact}</p>
+        ${section("Professional Summary", resumeDetails?.professionalSummary || selfDescription)}
+        ${section("Technical Skills", resumeDetails?.technicalSkills)}
+        ${section("Experience", resumeDetails?.experience)}
+        ${section("Internships", resumeDetails?.internships)}
+        ${section("Projects", resumeDetails?.projects)}
+        ${section("Education", resumeDetails?.education)}
+        ${section("Coding Profiles", resumeDetails?.codingProfiles)}
+        ${section("Achievements", resumeDetails?.achievements)}
+        ${section("Certifications", resumeDetails?.certifications)}
+        ${section("Positions of Responsibility", resumeDetails?.responsibilities)}
+        ${section("Extracurricular Activities", resumeDetails?.extracurriculars)}
+        ${section("Languages", resumeDetails?.languages)}
       </div>
     </body>
   </html>
@@ -229,17 +244,20 @@ Job Description: ${jobDescription}
   return validated.data;
 }
 
-async function generateResumeHtml({ resume, selfDescription, jobDescription }) {
+async function generateResumeHtml({ resume, selfDescription, jobDescription, resumeDetails }) {
   const prompt = `Generate a resume for a candidate with the following details:
 
-Resume: ${resume.slice(0, 1000)}
+Original Resume: ${resume.slice(0, 4000)}
 Self Description: ${selfDescription}
 Job Description: ${jobDescription}
+Candidate-verified Resume Information: ${JSON.stringify(resumeDetails)}
 
 Return ONLY a JSON object with one field: "html".
-The HTML should be ATS-friendly, clear, professional, and tailored to the job description.
-Use realistic sections like summary, skills, experience, and education.
-Make the content feel natural and human-written.
+Create a polished, ATS-friendly, single-column professional resume tailored to the job description.
+Use candidate-verified information as the source of truth. Never invent employers, dates, degrees, metrics, links, skills, achievements, or projects.
+Omit empty optional sections. Prioritize relevant skills naturally without keyword stuffing.
+Use semantic HTML with inline CSS, white background, dark text, standard fonts, clear headings, and no icons, tables, photos, charts, columns, or progress bars.
+Include only the sections for which the candidate supplied information.
 Do not include markdown or extra explanation.`;
 
   try {
@@ -264,7 +282,7 @@ Do not include markdown or extra explanation.`;
     return jsonContent.html;
   } catch (error) {
     if (error?.status === 429 || error?.status === 403) {
-      return buildFallbackResumeHtml({ resume, selfDescription, jobDescription });
+      return buildFallbackResumeHtml({ resume, selfDescription, jobDescription, resumeDetails });
     }
 
     throw error;

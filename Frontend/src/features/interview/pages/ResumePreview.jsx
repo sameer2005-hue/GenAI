@@ -30,7 +30,21 @@ function ResumePreview() {
           return;
         }
 
-        const response = await getResumePreview({ interviewId });
+        let resumeDetails;
+        try {
+          resumeDetails = JSON.parse(
+            sessionStorage.getItem(`resume-details-${interviewId}`),
+          );
+        } catch {
+          resumeDetails = null;
+        }
+
+        if (!resumeDetails) {
+          navigate(`/interview/${interviewId}/resume-details`, { replace: true });
+          return;
+        }
+
+        const response = await getResumePreview({ interviewId, resumeDetails });
         if (!mounted) return;
         setResumeHtml(response.resumeHtml || "");
         setResumeTitle(response.suggestedTitle || "");

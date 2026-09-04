@@ -80,7 +80,7 @@ function Interview() {
   }, [activeTab, report]);
 
   const handleResumePreview = () => {
-    navigate(`/interview/${interviewId}/resume-preview`);
+    navigate(`/interview/${interviewId}/resume-details`);
   };
 
   const handleDeleteResume = async (resumeId) => {

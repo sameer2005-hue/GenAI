@@ -1,0 +1,50 @@
+.ranker-page {
+  min-height: 100vh;
+  padding: 2rem 1rem 4rem;
+  background: radial-gradient(circle at 10% 0, rgba(192,138,87,.13), transparent 28%), #171413;
+  color: #f3ece4;
+
+  .ranker-shell { width: min(1080px, 100%); margin: 0 auto; }
+  .ranker-header { display: grid; grid-template-columns: 150px 1fr; gap: 1.5rem; align-items: start; margin-bottom: 1.5rem; }
+  .back-button { border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05); color: inherit; padding: .7rem .9rem; border-radius: 999px; cursor: pointer; font: inherit; }
+  .eyebrow { color: #c08a57; text-transform: uppercase; letter-spacing: .16rem; font-size: .72rem; font-weight: 800; margin-bottom: .4rem; }
+  h1 { font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; margin-bottom: .65rem; }
+  h2 { font-size: clamp(1.45rem, 3vw, 2rem); }
+  .ranker-header p:last-child, .results-heading > span { color: rgba(243,236,228,.65); line-height: 1.5; }
+  .ranker-form, .candidate-card { border: 1px solid rgba(255,255,255,.08); background: rgba(35,30,28,.92); border-radius: 1.5rem; }
+  .ranker-form { padding: 1.25rem; display: grid; grid-template-columns: 1.45fr .8fr; gap: 1rem; }
+  .ranker-form > label:first-child { display: flex; flex-direction: column; gap: .5rem; font-weight: 700; }
+  textarea { min-height: 190px; resize: vertical; border: 1px solid rgba(192,138,87,.2); border-radius: 1rem; background: #1a1716; color: inherit; padding: 1rem; font: inherit; line-height: 1.5; outline: none; }
+  textarea:focus { border-color: rgba(192,138,87,.65); box-shadow: 0 0 0 4px rgba(192,138,87,.1); }
+  .upload-zone { min-height: 190px; border: 1px dashed rgba(192,138,87,.45); border-radius: 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .35rem; cursor: pointer; text-align: center; background: rgba(192,138,87,.06); }
+  .upload-zone input { position: absolute; opacity: 0; pointer-events: none; }
+  .upload-zone span, .none { color: rgba(243,236,228,.55); font-size: .85rem; }
+  .file-chips { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .45rem; }
+  .file-chips span { max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: .4rem .65rem; border-radius: 999px; background: rgba(255,255,255,.06); font-size: .82rem; }
+  .ranker-error { grid-column: 1 / -1; color: #efb4aa; background: rgba(185,106,88,.12); padding: .75rem; border-radius: .8rem; }
+  .rank-button { grid-column: 1 / -1; border: 0; border-radius: .9rem; padding: .9rem; background: linear-gradient(135deg,#c08a57,#b96a58); color: #211713; font: inherit; font-weight: 800; cursor: pointer; }
+  .rank-button:disabled { opacity: .65; cursor: wait; }
+  .results-section { margin-top: 2rem; }
+  .results-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: end; margin-bottom: 1rem; }
+  .ranking-list { display: grid; gap: .85rem; }
+  .candidate-card { padding: 1.1rem; }
+  .candidate-summary { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .9rem; }
+  .rank { width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border-radius: .8rem; background: rgba(192,138,87,.14); color: #dca875; font-weight: 900; }
+  .candidate-summary h3 { font-size: 1rem; word-break: break-word; }
+  .candidate-summary p { margin-top: .25rem; color: rgba(243,236,228,.58); font-size: .87rem; }
+  .score { width: 4.2rem; height: 4.2rem; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 4px solid; }
+  .score strong { font-size: 1.25rem; line-height: 1; }.score span { font-size: .68rem; }.score.strong { color: #78c99a; }.score.medium { color: #e4ad67; }.score.low { color: #dd7c70; }
+  .candidate-facts { display: flex; gap: .65rem; flex-wrap: wrap; margin: .9rem 0; padding: .7rem 0; border-block: 1px solid rgba(255,255,255,.06); color: rgba(243,236,228,.64); font-size: .83rem; }.candidate-facts span { margin-right: 1rem; }.candidate-facts strong { color: #f3ece4; }
+  .skill-row { display: grid; grid-template-columns: 72px 1fr; gap: .65rem; margin-top: .55rem; align-items: start; }.skill-label { font-size: .8rem; color: rgba(243,236,228,.58); padding-top: .25rem; }.skill-list { display: flex; flex-wrap: wrap; gap: .35rem; }.skill { padding: .27rem .52rem; border-radius: 999px; font-size: .76rem; }.skill.matched { color: #a6dec0; background: rgba(79,141,108,.17); }.skill.missing { color: #efb4aa; background: rgba(185,106,88,.14); }
+  .failed-files { margin-top: 1rem; color: #efb4aa; font-size: .86rem; }
+
+  @media (max-width: 700px) {
+    padding-top: 1rem;
+    .ranker-header, .ranker-form { grid-template-columns: 1fr; }
+    .ranker-header { gap: 1rem; }
+    .back-button { width: max-content; }
+    .results-heading { align-items: start; flex-direction: column; }
+    .candidate-summary { grid-template-columns: auto 1fr; }
+    .score { grid-column: 1 / -1; width: 100%; height: auto; border-radius: .8rem; padding: .55rem; flex-direction: row; gap: .35rem; border-width: 1px; }
+  }
+}

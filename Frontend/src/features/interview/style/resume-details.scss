@@ -1,0 +1,17 @@
+.resume-details-page { min-height: 100vh; padding: 1.5rem; background: radial-gradient(circle at top left,rgba(192,138,87,.1),transparent 25%),#171413; color:#f3ece4; overflow-y:auto;
+  .resume-details-shell { width:min(1000px,100%); margin:auto; }
+  header { display:grid; grid-template-columns:120px 1fr; gap:1.2rem; margin-bottom:1.2rem; align-items:start; }
+  header button,.secondary { border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.05); color:inherit; border-radius:999px; padding:.7rem 1rem; cursor:pointer; font:inherit; }
+  .kicker { color:#c08a57; text-transform:uppercase; letter-spacing:.15rem; font-size:.72rem; font-weight:800; margin-bottom:.35rem; }
+  h1 { font-size:clamp(2rem,4vw,3rem); line-height:1.05; margin-bottom:.45rem; } header div>p:last-child { color:rgba(243,236,228,.63); line-height:1.5; max-width:75ch; }
+  form { display:grid; gap:.85rem; }
+  fieldset { border:1px solid rgba(255,255,255,.08); background:rgba(35,30,28,.94); border-radius:1.25rem; padding:1rem; }
+  legend { padding:0 .5rem; color:#dfb183; font-weight:800; }
+  .details-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; }.details-grid.two { grid-template-columns:.7fr 1.3fr; }
+  label { display:flex; flex-direction:column; gap:.4rem; font-size:.85rem; font-weight:700; }
+  input,textarea { width:100%; border:1px solid rgba(192,138,87,.18); background:#1a1716; color:inherit; border-radius:.8rem; padding:.75rem; font:inherit; outline:none; }
+  input:focus,textarea:focus { border-color:#c08a57; box-shadow:0 0 0 3px rgba(192,138,87,.1); } textarea { min-height:100px; resize:vertical; line-height:1.45; }.details-grid textarea { min-height:80px; }
+  .form-error { color:#efb4aa; background:rgba(185,106,88,.13); padding:.8rem; border-radius:.8rem; }
+  .form-actions { display:flex; justify-content:flex-end; gap:.7rem; position:sticky; bottom:1rem; padding:.8rem; border:1px solid rgba(255,255,255,.08); background:rgba(28,24,22,.96); border-radius:1rem; }.primary { border:0; background:linear-gradient(135deg,#c08a57,#b96a58); color:#211713; padding:.8rem 1.1rem; border-radius:999px; font:inherit; font-weight:800; cursor:pointer; }
+  @media(max-width:720px){ padding:1rem; header,.details-grid,.details-grid.two{grid-template-columns:1fr;}header button{width:max-content}.form-actions{flex-direction:column}.form-actions button{width:100%;} }
+}

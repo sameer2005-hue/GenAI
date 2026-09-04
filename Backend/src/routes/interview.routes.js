@@ -10,8 +10,11 @@ interviewRouter.post(
   interviewController.generateInterviewReportController,
 );
 
-
-interviewRouter.get("/report/:interviewId", authMiddleware.authUser, interviewController.getInterviewReportController);
+interviewRouter.get(
+  "/report/:interviewId",
+  authMiddleware.authUser,
+  interviewController.getInterviewReportController,
+);
 
 interviewRouter.post(
   "/resume/preview/:interviewId",
@@ -43,8 +46,16 @@ interviewRouter.delete(
   interviewController.deleteSavedResumeController,
 );
 
-interviewRouter.get("/", authMiddleware.authUser, interviewController.getAllInterviewReportController);
+interviewRouter.get(
+  "/",
+  authMiddleware.authUser,
+  interviewController.getAllInterviewReportController,
+);
 
-interviewRouter.post("/resume/pdf/:interviewId", authMiddleware.authUser, interviewController.generateResumePdfController);
+interviewRouter.post(
+  "/resume/pdf/:interviewId",
+  authMiddleware.authUser,
+  interviewController.generateResumePdfController,
+);
 
 module.exports = interviewRouter;

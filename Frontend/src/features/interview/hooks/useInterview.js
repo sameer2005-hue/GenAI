@@ -97,10 +97,10 @@ export const useInterview = () => {
   );
 
   const getResumePreview = useCallback(
-    async ({ interviewId }) => {
+    async ({ interviewId, resumeDetails }) => {
       setLoadinq(true);
       try {
-        const response = await generateResumePreview({ interviewId });
+        const response = await generateResumePreview({ interviewId, resumeDetails });
         return response;
       } catch (error) {
         console.error("Error generating resume preview:", error);

@@ -169,9 +169,6 @@ function Home() {
   };
 
   const isJobEditorOpen = editorPopup.open && editorPopup.field === "jobDescription";
-  const isSelfEditorOpen =
-    editorPopup.open && editorPopup.field === "selfDescription";
-
   const editorTitle =
     editorPopup.field === "jobDescription"
       ? "Edit Job Description"
@@ -208,6 +205,14 @@ function Home() {
             <p className="eyebrow">AI Interview Preparation</p>
             <h1>Build your next interview report</h1>
           </div>
+
+          <button
+            type="button"
+            className="ranker-link"
+            onClick={() => navigate("/resume-ranker")}
+          >
+            Rank candidate resumes
+          </button>
 
           <div className="user-menu topbar-user-menu" ref={menuRef}>
             <button
