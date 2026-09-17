@@ -5,13 +5,13 @@ const authRoute = require("./routes/auth.route");
 const intervireRoute = require("./routes/interview.routes");
 const resumeRankerRoute = require("./routes/resume-ranker.routes");
 const cors = require("cors");
+const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, "");
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    // origin: "http://localhost:5173",
-    origin: process.env.FRONTEND_URL,
+    origin: frontendUrl,
     credentials: true,
   }),
 );
