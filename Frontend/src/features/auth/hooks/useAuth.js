@@ -10,19 +10,26 @@ export const useAuth = () => {
     setLoading(true);
     try {
       const data = await login({ email, password });
-      setUser(data.user);
-      return data;
+      const user = {
+        ...data.user,
+        role: data.user?.role || localStorage.getItem(`accountRole:${data.user?.id}`) || "student",
+      };
+      localStorage.setItem(`accountRole:${user.id}`, user.role);
+      setUser(user);
+      return { ...data, user };
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRegister = async ({ username, email, password }) => {
+  const handleRegister = async ({ username, email, password, role }) => {
     setLoading(true);
     try {
-      const data = await register({ username, email, password });
-      setUser(data.user);
-      return data;
+      const data = await register({ username, email, password, role });
+      const user = { ...data.user, role: data.user?.role || role };
+      localStorage.setItem(`accountRole:${user.id}`, user.role);
+      setUser(user);
+      return { ...data, user };
     } finally {
       setLoading(false);
     }
@@ -33,6 +40,7 @@ export const useAuth = () => {
     try {
       await logout();
       setUser(null);
+      if (user?.id) localStorage.removeItem(`accountRole:${user.id}`);
     } finally {
       setLoading(false);
     }

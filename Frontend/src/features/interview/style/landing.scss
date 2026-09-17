@@ -74,6 +74,9 @@
     color: #f3ece4;
     font: inherit;
     cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.09); }
 }
 
 .nav-link-btn.primary,
@@ -82,6 +85,7 @@
     background: linear-gradient(135deg, #c08a57, #b96a58);
     color: #1f1714;
     font-weight: 700;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
 .landing-cta.secondary {
@@ -102,6 +106,7 @@
     background: rgba(34, 29, 27, 0.9);
     padding: 1.6rem;
     color: #f3ece4;
+    animation: landing-enter 0.5s ease both;
 }
 
 .landing-kicker,
@@ -135,6 +140,8 @@
     font-size: 1.8rem;
 }
 
+.landing-preview-card { animation-delay: 0.08s; }
+
 .landing-feature-list {
     display: grid;
     gap: 0.8rem;
@@ -145,6 +152,9 @@
     border-radius: 1.15rem;
     border: 1px solid rgba(255, 255, 255, 0.05);
     background: rgba(255, 255, 255, 0.04);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+
+    &:hover { transform: translateX(3px); background: rgba(255, 255, 255, 0.07); }
 
     strong {
         display: block;
@@ -157,6 +167,11 @@
         line-height: 1.55;
         font-size: 0.92rem;
     }
+}
+
+@keyframes landing-enter {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 920px) {

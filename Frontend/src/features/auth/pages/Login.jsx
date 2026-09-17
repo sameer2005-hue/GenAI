@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../auth.form.scss";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import LoadingState from "../../../components/LoadingState";
 
 const Login = () => {
   const { loading, handleLogin } = useAuth();
@@ -42,11 +43,7 @@ const Login = () => {
   };
 
   if (loading) {
-    return (
-      <main className="auth-page auth-loading">
-        <h1>Loading... </h1>
-      </main>
-    );
+    return <LoadingState title="Opening your account" detail="Checking your saved session securely." />;
   }
 
   return (

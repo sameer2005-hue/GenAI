@@ -1,19 +1,19 @@
 import axios from "axios";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = "http://localhost:3000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
-export async function register({ username, email, password }) {
+export async function register({ username, email, password, role }) {
   try {
     const response = await api.post("/api/auth/register", {
       username,
       email,
-      password,
+    password,
+    role,
     });
     return response.data;
   } catch (err) {
@@ -21,6 +21,7 @@ export async function register({ username, email, password }) {
     throw err;
   }
 }
+
 
 export async function login({ email, password }) {
   try {

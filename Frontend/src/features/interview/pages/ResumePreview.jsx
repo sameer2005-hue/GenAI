@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useInterview } from "../hooks/useInterview";
+import LoadingState from "../../../components/LoadingState";
 import "../style/resume-preview.scss";
 
 function ResumePreview() {
@@ -30,7 +31,21 @@ function ResumePreview() {
           return;
         }
 
-        const response = await getResumePreview({ interviewId });
+        let resumeDetails;
+        try {
+          resumeDetails = JSON.parse(
+            sessionStorage.getItem(`resume-details-${interviewId}`),
+          );
+        } catch {
+          resumeDetails = null;
+        }
+
+        if (!resumeDetails) {
+          navigate(`/interview/${interviewId}/resume-details`, { replace: true });
+          return;
+        }
+
+        const response = await getResumePreview({ interviewId, resumeDetails });
         if (!mounted) return;
         setResumeHtml(response.resumeHtml || "");
         setResumeTitle(response.suggestedTitle || "");
@@ -105,13 +120,7 @@ function ResumePreview() {
   };
 
   if (loadingPreview) {
-    return (
-      <main className="resume-preview-page">
-        <section className="resume-preview-shell loading">
-          <p>Preparing your resume preview...</p>
-        </section>
-      </main>
-    );
+    return <LoadingState title="Preparing your resume preview" detail="Formatting your tailored resume into a clean, printable layout." />;
   }
 
   return (

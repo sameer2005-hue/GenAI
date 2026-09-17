@@ -4,21 +4,23 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 function getCookieOptions() {
-  const isProduction = process.env.NODE_ENV === "production";
-
   return {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "none" : "lax",
+    secure: false,
+    sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000,
   };
 }
 
 async function registerUser(req, res) {
-  const { username, email, password } = req.body;
+  const { username, email, password, role } = req.body;
 
   if (!username || !email || !password) {
     return res.status(400).json({ message: "Please fill all the fields" });
+  }
+
+  if (role && !["student", "recruiter"].includes(role)) {
+    return res.status(400).json({ message: "Please select a valid account role" });
   }
 
   const existingUser = await userModel.findOne({
@@ -33,10 +35,11 @@ async function registerUser(req, res) {
     username,
     email,
     password,
+    role: role || "student",
   });
 
   const token = jwt.sign(
-    { id: user._id, username: user.username },
+    { id: user._id, username: user.username, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
@@ -50,6 +53,7 @@ async function registerUser(req, res) {
       id: user._id,
       username: user.username,
       email: user.email,
+      role: user.role,
     },
   });
 }
@@ -73,7 +77,7 @@ async function loginUser(req, res) {
   }
 
   const token = jwt.sign(
-    { id: user._id, username: user.username },
+    { id: user._id, username: user.username, role: user.role },
     process.env.JWT_SECRET,
     { expiresIn: "1d" },
   );
@@ -86,6 +90,7 @@ async function loginUser(req, res) {
       id: user._id,
       username: user.username,
       email: user.email,
+      role: user.role,
     },
   });
 }
@@ -119,7 +124,8 @@ async function getMeController(req, res) {
     user:{
       id: user._id,
       username: user.username,
-      email: user.email
+      email: user.email,
+      role: user.role,
     }
   })
 }

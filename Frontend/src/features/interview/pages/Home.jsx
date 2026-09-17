@@ -2,12 +2,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../auth/hooks/useAuth";
 import { useInterview } from "../hooks/useInterview";
+import LoadingState from "../../../components/LoadingState";
 import "../style/home.scss";
 
 function Home() {
   const { loading, generateReport, reports, fetchReports } = useInterview();
   const [jobDescription, setJobDescription] = useState("");
   const [selfDescription, setSelfDescription] = useState("");
+  const [resumeFileName, setResumeFileName] = useState("");
+  const [resumeLibraryOpen, setResumeLibraryOpen] = useState(false);
   const resumeInputRef = useRef();
 
   useEffect(() => {
@@ -42,6 +45,18 @@ function Home() {
     const name = user?.username?.trim() || "User";
     return name.slice(0, 2).toUpperCase();
   }, [user?.username]);
+
+  const savedResumes = useMemo(
+    () =>
+      (reports || []).flatMap((report) =>
+        (report.savedResumes || []).map((resume) => ({
+          ...resume,
+          interviewId: report._id,
+          reportTitle: report.title || "Interview report",
+        })),
+      ),
+    [reports],
+  );
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -160,6 +175,22 @@ function Home() {
     }
   };
 
+  const handleResumeFileChange = (event) => {
+    const file = event.target.files?.[0];
+    setResumeFileName(file?.name || "");
+  };
+
+  const handleGenerateResume = () => {
+    const latestReport = reports?.[0];
+
+    if (!latestReport?._id) {
+      alert("Generate an interview report first to create a tailored resume.");
+      return;
+    }
+
+    navigate(`/interview/${latestReport._id}/resume-details`);
+  };
+
   const openEditorPopup = (field) => {
     setEditorPopup({ field, open: true });
   };
@@ -168,10 +199,8 @@ function Home() {
     setEditorPopup({ field: "", open: false });
   };
 
-  const isJobEditorOpen = editorPopup.open && editorPopup.field === "jobDescription";
-  const isSelfEditorOpen =
-    editorPopup.open && editorPopup.field === "selfDescription";
-
+  const isJobEditorOpen =
+    editorPopup.open && editorPopup.field === "jobDescription";
   const editorTitle =
     editorPopup.field === "jobDescription"
       ? "Edit Job Description"
@@ -193,10 +222,10 @@ function Home() {
 
   if (loading) {
     return (
-      <div className="loading-state">
-        <p>Generating your interview report...</p>
-        <div className="spinner"></div>
-      </div>
+      <LoadingState
+        title="Building your interview report"
+        detail="Analysing your resume and matching it to the target role."
+      />
     );
   }
 
@@ -207,6 +236,24 @@ function Home() {
           <div className="home-topbar-copy">
             <p className="eyebrow">AI Interview Preparation</p>
             <h1>Build your next interview report</h1>
+          </div>
+
+          <div className="home-actions">
+            <button
+              type="button"
+              className="generate-resume-home-btn"
+              onClick={handleGenerateResume}
+            >
+              Generate Resume
+            </button>
+            <button
+              type="button"
+              className="view-resumes-home-btn"
+              onClick={() => setResumeLibraryOpen(true)}
+            >
+              View All Resumes
+              {savedResumes.length ? ` (${savedResumes.length})` : ""}
+            </button>
           </div>
 
           <div className="user-menu topbar-user-menu" ref={menuRef}>
@@ -261,14 +308,19 @@ function Home() {
                   className="report-item"
                   onClick={() => navigate(`/interview/${item._id}`)}
                 >
-                  <strong>{item.title || `Report ${item._id?.slice(-6)}`}</strong>
+                  <strong>
+                    {item.title || `Report ${item._id?.slice(-6)}`}
+                  </strong>
                   <span>
-                    Score: {item.matchScore ?? "N/A"}% • {new Date(item.createdAt).toLocaleDateString()}
+                    Score: {item.matchScore ?? "N/A"}% •{" "}
+                    {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                 </button>
               ))
             ) : (
-              <p className="empty-reports">No saved reports yet. Generate one to see it here.</p>
+              <p className="empty-reports">
+                No saved reports yet. Generate one to see it here.
+              </p>
             )}
           </div>
         </aside>
@@ -299,9 +351,22 @@ function Home() {
             <div className="form-grid">
               <div className="input-group upload-group">
                 <label htmlFor="resume">Resume</label>
-                <label className="file-label" htmlFor="resume">
-                  <span>Upload PDF Resume</span>
-                  <small>Choose a clean PDF file</small>
+                <label
+                  className={`file-label ${resumeFileName ? "uploaded" : ""}`}
+                  htmlFor="resume"
+                >
+                  {resumeFileName ? (
+                    <>
+                      <span className="upload-status">✓ Resume uploaded</span>
+                      <small title={resumeFileName}>{resumeFileName}</small>
+                      <em>Click to replace the file</em>
+                    </>
+                  ) : (
+                    <>
+                      <span>Upload PDF Resume</span>
+                      <small>Choose a clean PDF file</small>
+                    </>
+                  )}
                 </label>
                 <input
                   ref={resumeInputRef}
@@ -310,6 +375,7 @@ function Home() {
                   name="resume"
                   id="resume"
                   accept=".pdf"
+                  onChange={handleResumeFileChange}
                 />
               </div>
 
@@ -335,6 +401,54 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {resumeLibraryOpen ? (
+        <div className="profile-modal-backdrop">
+          <section
+            className="profile-modal resume-library-modal"
+            aria-labelledby="resume-library-title"
+          >
+            <div className="profile-modal-header">
+              <div className="profile-section-head">
+                <strong id="resume-library-title">Generated Resumes</strong>
+                <p>Open any saved resume to preview or download it.</p>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setResumeLibraryOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            {savedResumes.length ? (
+              <div className="resume-library-list">
+                {savedResumes.map((resume) => (
+                  <button
+                    key={`${resume.interviewId}-${resume._id}`}
+                    type="button"
+                    className="resume-library-item"
+                    onClick={() =>
+                      navigate(
+                        `/interview/${resume.interviewId}/resume-preview/${resume._id}`,
+                      )
+                    }
+                  >
+                    <strong>{resume.title || "Untitled Resume"}</strong>
+                    <span>{resume.reportTitle}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="empty-resumes">
+                No generated resumes saved yet. Create one from an interview
+                report, then save it to find it here.
+              </p>
+            )}
+          </section>
+        </div>
+      ) : null}
 
       {profileOpen ? (
         <div className="profile-modal-backdrop">
@@ -364,6 +478,10 @@ function Home() {
               <div className="profile-detail-card">
                 <strong>Email</strong>
                 <p>{user?.email || "No email available"}</p>
+              </div>
+              <div className="profile-detail-card">
+                <strong>Account type</strong>
+                <p>{user?.role === "student" ? "Student" : ""}</p>
               </div>
             </div>
 
@@ -479,7 +597,11 @@ function Home() {
                 autoFocus
                 value={editorValue}
                 onChange={handleEditorChange}
-                className={isJobEditorOpen ? "popup-textarea job-popup" : "popup-textarea self-popup"}
+                className={
+                  isJobEditorOpen
+                    ? "popup-textarea job-popup"
+                    : "popup-textarea self-popup"
+                }
                 placeholder={
                   isJobEditorOpen
                     ? "Paste the role responsibilities, required skills, and expectations here..."

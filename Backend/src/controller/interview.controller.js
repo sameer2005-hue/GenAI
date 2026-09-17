@@ -242,6 +242,18 @@ async function generateResumePdfController(req, res) {
 
 async function generateResumePreviewController(req, res) {
   const { interviewId } = req.params;
+  const { resumeDetails } = req.body;
+
+  if (
+    !resumeDetails?.personal?.fullName?.trim() ||
+    !resumeDetails?.personal?.email?.trim() ||
+    !resumeDetails?.personal?.phone?.trim() ||
+    !resumeDetails?.technicalSkills?.trim()
+  ) {
+    return res.status(400).json({
+      message: "Full name, email, phone, and technical skills are required.",
+    });
+  }
 
   const interviewReport = await interviewReportModel.findOne({
     _id: interviewId,
@@ -261,6 +273,7 @@ async function generateResumePreviewController(req, res) {
       resume,
       selfDescription,
       jobDescription,
+      resumeDetails,
     });
 
     return res.status(200).json({

@@ -1,20 +1,25 @@
-import React from 'react';
-import {useAuth} from "../hooks/useAuth";
-import {Navigate} from "react-router";
+import React from "react";
+import { useAuth } from "../hooks/useAuth";
+import { Navigate } from "react-router";
+import LoadingState from "../../../components/LoadingState";
 
 function Protected({ children }) {
+  const { loading, user } = useAuth();
 
-    const {loading, user} = useAuth();
+  if (loading) {
+    return (
+      <LoadingState
+        title="Checking your workspace"
+        detail="We are confirming your session before opening the dashboard."
+      />
+    );
+  }
 
-    if(loading){
-        return(<main><h1>Loading...</h1></main>)
-    }
+  if (!user) {
+    return <Navigate to={"/login"} />;
+  }
 
-    if(!user){
-        return <Navigate to={"/login"}/>
-    }
-
-    return children;
+  return children;
 }
 
 export default Protected;

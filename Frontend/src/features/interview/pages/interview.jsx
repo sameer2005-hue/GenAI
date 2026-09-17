@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useInterview } from "../hooks/useInterview";
+import LoadingState from "../../../components/LoadingState";
 import "../style/interview.scss";
 
 const tabs = [
@@ -80,7 +81,7 @@ function Interview() {
   }, [activeTab, report]);
 
   const handleResumePreview = () => {
-    navigate(`/interview/${interviewId}/resume-preview`);
+    navigate(`/interview/${interviewId}/resume-details`);
   };
 
   const handleDeleteResume = async (resumeId) => {
@@ -106,13 +107,7 @@ function Interview() {
   };
 
   if (loading && !report) {
-    return (
-      <main className="interview-page">
-        <section className="interview-shell interview-empty-state">
-          <p>Loading interview report...</p>
-        </section>
-      </main>
-    );
+    return <LoadingState title="Loading your interview report" detail="Gathering your questions, skill gaps, and preparation roadmap." />;
   }
 
   if (!report) {

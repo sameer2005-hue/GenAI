@@ -1,7 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = "http://localhost:3000";
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -17,7 +16,7 @@ export const generateInterviewReport = async ({jobDescription, selfDescription, 
     formData.append("selfDescription", selfDescription);
     formData.append("resume", resumeFile);
 
-    const response = await api.post("/api/interview", formData, {
+    const response = await api.post("/api/student/interview", formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -29,32 +28,32 @@ export const generateInterviewReport = async ({jobDescription, selfDescription, 
 
 
 export const getInterviewReportById = async (interviewId) =>{
-    const response = await api.get(`/api/interview/report/${interviewId}`);
+    const response = await api.get(`/api/student/interview/report/${interviewId}`);
     return response.data;
 }
 
 
 export const getInterviewReports = async () =>{
-    const response = await api.get("/api/interview");
+    const response = await api.get("/api/student/interview");
     return response.data;
 }
 
 
 export const generateResumePdf = async ({interviewId}) => {
-    const response = await api.post(`/api/interview/resume/pdf/${interviewId}`, null, {
+    const response = await api.post(`/api/student/interview/resume/pdf/${interviewId}`, null, {
         responseType: "blob", // Important for handling binary data
     });
     return response.data; // This will be the PDF blob
 }
 
-export const generateResumePreview = async ({ interviewId }) => {
-    const response = await api.post(`/api/interview/resume/preview/${interviewId}`);
+export const generateResumePreview = async ({ interviewId, resumeDetails }) => {
+    const response = await api.post(`/api/student/interview/resume/preview/${interviewId}`, { resumeDetails });
     return response.data;
 }
 
 export const renderResumePdf = async ({ html, title }) => {
     const response = await api.post(
-        "/api/interview/resume/render-pdf",
+        "/api/student/interview/resume/render-pdf",
         { html, title },
         {
             responseType: "blob",
@@ -64,7 +63,7 @@ export const renderResumePdf = async ({ html, title }) => {
 }
 
 export const saveGeneratedResume = async ({ interviewId, title, html }) => {
-    const response = await api.post(`/api/interview/resume/save/${interviewId}`, {
+    const response = await api.post(`/api/student/interview/resume/save/${interviewId}`, {
         title,
         html,
     });
@@ -72,11 +71,11 @@ export const saveGeneratedResume = async ({ interviewId, title, html }) => {
 }
 
 export const getSavedResume = async ({ interviewId, resumeId }) => {
-    const response = await api.get(`/api/interview/resume/saved/${interviewId}/${resumeId}`);
+    const response = await api.get(`/api/student/interview/resume/saved/${interviewId}/${resumeId}`);
     return response.data;
 }
 
 export const deleteSavedResume = async ({ interviewId, resumeId }) => {
-    const response = await api.delete(`/api/interview/resume/saved/${interviewId}/${resumeId}`);
+    const response = await api.delete(`/api/student/interview/resume/saved/${interviewId}/${resumeId}`);
     return response.data;
 }

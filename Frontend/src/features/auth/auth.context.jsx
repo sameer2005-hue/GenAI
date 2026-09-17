@@ -12,7 +12,12 @@ export const AuthProvider = ({ children }) => {
     const getAndSetUser = async () => {
       try {
         const data = await getMe();
-        setUser(data.user);
+        const rememberedRole = localStorage.getItem(`accountRole:${data.user?.id}`);
+        const user = data.user
+          ? { ...data.user, role: data.user.role || rememberedRole || "student" }
+          : null;
+        if (user?.role) localStorage.setItem(`accountRole:${user.id}`, user.role);
+        setUser(user);
       } catch (err) {
         console.log('No user data available:', err);
         setUser(null);

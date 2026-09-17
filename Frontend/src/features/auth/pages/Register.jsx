@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "../auth.form.scss";
 import { useNavigate, Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import LoadingState from "../../../components/LoadingState";
 
 const Register = () => {
   const { loading, handleRegister } = useAuth();
@@ -9,6 +10,7 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student");
   const [popup, setPopup] = useState({ type: "", message: "" });
 
   const showPopup = (type, message) => {
@@ -40,6 +42,7 @@ const Register = () => {
         username: username.trim(),
         email: email.trim(),
         password,
+        role,
       });
       showPopup("success", "Account created successfully. Redirecting...");
       navigate("/app");
@@ -53,11 +56,7 @@ const Register = () => {
   };
 
   if (loading) {
-    return (
-      <main className="auth-page auth-loading">
-        <h1>Loading... </h1>
-      </main>
-    );
+    return <LoadingState title="Setting up your account" detail="Preparing a secure workspace for your interview journey." />;
   }
 
   return (
@@ -137,6 +136,17 @@ const Register = () => {
                 }}
               />
             </div>
+            <fieldset className="role-picker">
+              <legend>I am joining as</legend>
+              <label className={role === "student" ? "role-option selected" : "role-option"}>
+                <input type="radio" name="role" value="student" checked={role === "student"} onChange={(e) => setRole(e.target.value)} />
+                <span><strong>Student</strong><small>Interview preparation, resume generation, and career guidance.</small></span>
+              </label>
+              <label className={role === "recruiter" ? "role-option selected" : "role-option"}>
+                <input type="radio" name="role" value="recruiter" checked={role === "recruiter"} onChange={(e) => setRole(e.target.value)} />
+                <span><strong>Recruiter</strong><small>Upload and rank candidate resumes against a job description.</small></span>
+              </label>
+            </fieldset>
             <button className="button primary-button auth-submit-btn">
               Register
             </button>
