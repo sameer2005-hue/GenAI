@@ -32,12 +32,20 @@ export const router = createBrowserRouter([
     element: <RoleProtected allowedRoles={["recruiter"]}><ResumeRanker/></RoleProtected>
   },
   {
+    path: "/resume-ranker",
+    element: <Protected><ResumeRanker/></Protected>
+  },
+  {
     path: "/interview/:interviewId",
     element: <RoleProtected allowedRoles={["student"]}><Interview/></RoleProtected>
   },
   {
     path: "/interview/:interviewId/resume-details",
     element: <RoleProtected allowedRoles={["student"]}><ResumeDetails/></RoleProtected>
+  },
+  {
+    path: "/interview/:interviewId/resume-details",
+    element: <Protected><ResumeDetails/></Protected>
   },
   {
     path: "/interview/:interviewId/resume-preview",
